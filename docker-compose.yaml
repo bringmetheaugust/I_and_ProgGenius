@@ -1,0 +1,38 @@
+services:
+  client:
+    container_name: app_client # для красоти
+    image: node:20.19.2-alpine
+    working_dir: /app
+    command: npm run dev
+    volumes:
+      - ./app/client:/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - server_api
+
+  server_api:
+    container_name: app_api # для звернення до хоста
+    image: node:20.19.2-alpine
+    working_dir: /app
+    command: npm run start:dev
+    volumes:
+      - ./app/server:/app
+    environment:
+      - DB_PASS
+      - DB_USER
+      - DB_NAME
+      - DB_HOST
+    depends_on:
+      - server_db
+    ports:
+      - 81:81 # для sockets-ів
+
+  server_db:
+    container_name: app_db # для звернення до хоста
+    image: postgres:13.3-alpine3.14
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DATABASE=${DB_NAME}
+
